@@ -1,0 +1,39 @@
+policy
+Description: '';
+SampleFile: 'D:\load\aatestpp\PUPS2\STMTONL and BSD_Persistence\JB682ER3.TXT.DUP';
+DataType: Text;
+CharSet: ASCII;
+PageBreaks: AnsiCC;
+LineBreaks: CRLF;
+PageViewMode: TextOnly;
+
+field
+accountnum: level=1, string(12), padlen(12, 'SPACE'), singleinstance, allowblank, rowcol(1, 9), follows(SAMELINE, anchor);
+anchor: level=1, string(3), singleinstance, matches('***'), rowcol(1, 2);
+begindate: level=1, string(8), singleinstance, allowblank, rowcol(1, 33), follows(SAMELINE, anchor);
+enddate: level=1, string(8), singleinstance, allowblank, rowcol(1, 41), follows(SAMELINE, anchor);
+Format_Serial_Number: level=1, string(5), padlen(5, 'SPACE'), singleinstance, allowblank, rowcol(1, 49), follows(SAMELINE, anchor);
+masterid: level=1, string(4), padlen(4, 'SPACE'), singleinstance, allowblank, rowcol(1, 5), follows(SAMELINE, anchor);
+recipid: level=1, string(12), padlen(12, 'SPACE'), singleinstance, allowblank, rowcol(1, 21), follows(SAMELINE, anchor);
+FILE DATE: level=1, date('YYYYMMDD'), metadata('FILE_DATE');
+DOCNAME: level=1, string, replacetext('EBR Statements'), singleinstance;
+FILE_NAME: level=1, string, metadata('FILE_NAME');
+FILE_DIR1: level=1, string, metadata('FILE_DIR1');
+FILE_DIR2: level=1, string, metadata('FILE_DIR2');
+SLASH: level=1, string, replacetext(''), metadata('CURRENT_DATE');
+ESTATEMENTKEY: level=1, string, metadata('ESTATEMENTKEY');
+
+index
+accountnum: GroupUsage(2), GroupPersistenceYes, accountnum;
+ACRCPSTMT: GroupUsage(3), GroupPersistenceYes, accountnum, recipid, Format_Serial_Number;
+BANKIDACC: GroupUsage(3), GroupPersistenceYes, masterid, accountnum;
+ACENDSTRT: GroupPersistenceYes, accountnum, enddate, begindate;
+STMTEND: GroupUsage(3), GroupPersistenceYes, enddate;
+BANKID: GroupUsage(3), GroupPersistenceYes, masterid;
+REPORTDATE: GroupUsage(3), FILE DATE;
+DOCNAME: GroupUsage(3), DOCNAME;
+FILENAME: GroupUsage(3), FILE_NAME;
+FOLDER: GroupUsage(3), FILE_DIR2, SLASH, FILE_DIR1;
+ACCTNUM: GroupUsage(3), GroupPersistenceYes, accountnum;
+ESTMTKEYSF: GroupUsage(3), ESTATEMENTKEY;
+ESTMTKEY: GroupUsage(3), ESTATEMENTKEY;

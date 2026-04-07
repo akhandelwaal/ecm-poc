@@ -1,0 +1,5 @@
+# ECM PoC — Python dependencies
+# The core pipeline uses only the standard library.
+# Optional: install pytest for the test suite.
+
+pytest>=7.0

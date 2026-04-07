@@ -1,0 +1,146 @@
+[
+  {
+    "file": "D:\\Ankit\\Office\\ECM\\POC\\ecm-poc\\input\\sample.txt",
+    "processed_at": "2026-04-07T10:13:54",
+    "total_pages": 4,
+    "matched_pages": 4,
+    "pages": [
+      {
+        "page_number": 1,
+        "extracted_fields": {
+          "accountnum": "ACC000001234",
+          "anchor": "***",
+          "begindate": "20240101",
+          "enddate": "20240131",
+          "Format_Serial_Number": "00001",
+          "masterid": "B001",
+          "recipid": "RECIP0000001",
+          "FILE DATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILE_NAME": "sample.txt",
+          "FILE_DIR1": "input",
+          "FILE_DIR2": "ecm-poc",
+          "SLASH": "",
+          "ESTATEMENTKEY": "sample"
+        },
+        "indexes": {
+          "accountnum": "ACC000001234",
+          "ACRCPSTMT": "ACC000001234|RECIP0000001|00001",
+          "BANKIDACC": "B001|ACC000001234",
+          "ACENDSTRT": "ACC000001234|20240131|20240101",
+          "STMTEND": "20240131",
+          "BANKID": "B001",
+          "REPORTDATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILENAME": "sample.txt",
+          "FOLDER": "ecm-poc||input",
+          "ACCTNUM": "ACC000001234",
+          "ESTMTKEYSF": "sample",
+          "ESTMTKEY": "sample"
+        }
+      },
+      {
+        "page_number": 2,
+        "extracted_fields": {
+          "accountnum": "ACC000001234",
+          "anchor": "***",
+          "begindate": "20240201",
+          "enddate": "20240229",
+          "Format_Serial_Number": "00001",
+          "masterid": "B001",
+          "recipid": "RECIP0000001",
+          "FILE DATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILE_NAME": "sample.txt",
+          "FILE_DIR1": "input",
+          "FILE_DIR2": "ecm-poc",
+          "SLASH": "",
+          "ESTATEMENTKEY": "sample"
+        },
+        "indexes": {
+          "accountnum": "ACC000001234",
+          "ACRCPSTMT": "ACC000001234|RECIP0000001|00001",
+          "BANKIDACC": "B001|ACC000001234",
+          "ACENDSTRT": "ACC000001234|20240229|20240201",
+          "STMTEND": "20240229",
+          "BANKID": "B001",
+          "REPORTDATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILENAME": "sample.txt",
+          "FOLDER": "ecm-poc||input",
+          "ACCTNUM": "ACC000001234",
+          "ESTMTKEYSF": "sample",
+          "ESTMTKEY": "sample"
+        }
+      },
+      {
+        "page_number": 3,
+        "extracted_fields": {
+          "accountnum": "ACC000005678",
+          "anchor": "***",
+          "begindate": "20240101",
+          "enddate": "20240131",
+          "Format_Serial_Number": "00002",
+          "masterid": "B002",
+          "recipid": "RECIP0000002",
+          "FILE DATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILE_NAME": "sample.txt",
+          "FILE_DIR1": "input",
+          "FILE_DIR2": "ecm-poc",
+          "SLASH": "",
+          "ESTATEMENTKEY": "sample"
+        },
+        "indexes": {
+          "accountnum": "ACC000005678",
+          "ACRCPSTMT": "ACC000005678|RECIP0000002|00002",
+          "BANKIDACC": "B002|ACC000005678",
+          "ACENDSTRT": "ACC000005678|20240131|20240101",
+          "STMTEND": "20240131",
+          "BANKID": "B002",
+          "REPORTDATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILENAME": "sample.txt",
+          "FOLDER": "ecm-poc||input",
+          "ACCTNUM": "ACC000005678",
+          "ESTMTKEYSF": "sample",
+          "ESTMTKEY": "sample"
+        }
+      },
+      {
+        "page_number": 4,
+        "extracted_fields": {
+          "accountnum": "ACC000009999",
+          "anchor": "***",
+          "begindate": "20240301",
+          "enddate": "20240331",
+          "Format_Serial_Number": "00003",
+          "masterid": "B002",
+          "recipid": "RECIP0000003",
+          "FILE DATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILE_NAME": "sample.txt",
+          "FILE_DIR1": "input",
+          "FILE_DIR2": "ecm-poc",
+          "SLASH": "",
+          "ESTATEMENTKEY": "sample"
+        },
+        "indexes": {
+          "accountnum": "ACC000009999",
+          "ACRCPSTMT": "ACC000009999|RECIP0000003|00003",
+          "BANKIDACC": "B002|ACC000009999",
+          "ACENDSTRT": "ACC000009999|20240331|20240301",
+          "STMTEND": "20240331",
+          "BANKID": "B002",
+          "REPORTDATE": "20260407",
+          "DOCNAME": "EBR Statements",
+          "FILENAME": "sample.txt",
+          "FOLDER": "ecm-poc||input",
+          "ACCTNUM": "ACC000009999",
+          "ESTMTKEYSF": "sample",
+          "ESTMTKEY": "sample"
+        }
+      }
+    ]
+  }
+]

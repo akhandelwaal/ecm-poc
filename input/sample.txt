@@ -1,0 +1,44 @@
+1***B001ACC000001234RECIP0000001202401012024013100001
+ STATEMENT OF ACCOUNT
+ Account Holder : John Smith
+ Period         : Jan 2024
+ Opening Balance:   5000.00
+ Closing Balance:   4750.00
+
+ Transaction Details:
+  01-Jan-2024  Direct Debit   -  150.00
+  15-Jan-2024  Salary Credit  + 3000.00
+  28-Jan-2024  ATM Withdrawal -  100.00
+1***B001ACC000001234RECIP0000001202402012024022900001
+ STATEMENT OF ACCOUNT
+ Account Holder : John Smith
+ Period         : Feb 2024
+ Opening Balance:   4750.00
+ Closing Balance:   5200.00
+
+ Transaction Details:
+  02-Feb-2024  Direct Debit   -  150.00
+  15-Feb-2024  Salary Credit  + 3000.00
+  20-Feb-2024  Online Transfer-  400.00
+1***B002ACC000005678RECIP0000002202401012024013100002
+ STATEMENT OF ACCOUNT
+ Account Holder : Jane Doe
+ Period         : Jan 2024
+ Opening Balance:  12000.00
+ Closing Balance:  11500.00
+
+ Transaction Details:
+  05-Jan-2024  Bill Payment   -  200.00
+  15-Jan-2024  Salary Credit  + 5000.00
+  25-Jan-2024  Transfer Out   - 1300.00
+1***B002ACC000009999RECIP0000003202403012024033100003
+ STATEMENT OF ACCOUNT
+ Account Holder : Bob Williams
+ Period         : Mar 2024
+ Opening Balance:   2500.00
+ Closing Balance:   3100.00
+
+ Transaction Details:
+  10-Mar-2024  Deposit        + 1000.00
+  15-Mar-2024  Salary Credit  + 3000.00
+  30-Mar-2024  Rent Payment   - 2400.00
