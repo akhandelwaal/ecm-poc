@@ -13,7 +13,7 @@ Supported page-break modes:
 
 import logging
 from dataclasses import dataclass, field
-from typing import List
+from typing import Dict, List, Optional
 
 from policy_parser import PolicyConfig
 
@@ -25,19 +25,24 @@ logger = logging.getLogger(__name__)
 @dataclass
 class Page:
     """One logical page inside a document."""
-    page_number: int
-    lines: List[str] = field(default_factory=list)
+    page_number:  int
+    lines:        List[str]                  = field(default_factory=list)
+    # AFP pages carry their TLE metadata here; None for text pages.
+    afp_metadata: Optional[Dict[str, str]]   = None
 
     def get_line(self, row: int) -> str:
-        """
-        Return the line at 1-based row number.
-        Returns an empty string if the row is out of bounds.
-        """
+        """Return the line at 1-based row number. Empty string if out of bounds."""
         idx = row - 1
         return self.lines[idx] if 0 <= idx < len(self.lines) else ''
 
+    @property
+    def is_afp(self) -> bool:
+        """True when this page was produced by the AFP parser."""
+        return self.afp_metadata is not None
+
     def __repr__(self) -> str:
-        return f"<Page {self.page_number}: {len(self.lines)} line(s)>"
+        kind = 'AFP' if self.is_afp else 'Text'
+        return f"<Page {self.page_number} [{kind}]: {len(self.lines)} line(s)>"
 
 
 # ── Processor ─────────────────────────────────────────────────────────────────
@@ -61,13 +66,32 @@ class DocumentProcessor:
 
     def process_file(self, filepath: str) -> List[Page]:
         """Read a document file from disk and split into pages."""
+        if self.config.data_type.upper() == 'AFP':
+            return self._process_afp_file(filepath)
+        return self._process_text_file(filepath)
+
+    def _process_text_file(self, filepath: str) -> List[Page]:
+        """Read a plain-text document and split into pages."""
         encoding = self._resolve_encoding()
         logger.debug("Reading '%s' (encoding=%s)", filepath, encoding)
-
         with open(filepath, 'r', encoding=encoding, errors='replace') as fh:
             content = fh.read()
-
         return self.process_text(content)
+
+    def _process_afp_file(self, filepath: str) -> List[Page]:
+        """Delegate to the AFP binary parser and convert to Page objects."""
+        from afp_processor import AFPProcessor
+        parser = AFPProcessor()
+        afp_pages = parser.parse_file(filepath)
+        pages = []
+        for ap in afp_pages:
+            pages.append(Page(
+                page_number=ap.page_number,
+                lines=[],
+                afp_metadata=ap.metadata,
+            ))
+        logger.info("AFP: %d page(s) loaded from '%s'", len(pages), filepath)
+        return pages
 
     def process_text(self, content: str) -> List[Page]:
         """Split raw text content into pages."""

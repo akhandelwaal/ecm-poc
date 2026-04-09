@@ -27,6 +27,9 @@ class PolicyConfig:
     page_breaks:    str = 'AnsiCC'
     line_breaks:    str = 'CRLF'
     page_view_mode: str = 'TextOnly'
+    # AFP-specific
+    formdef:        str = ''
+    input_res_path: str = ''
 
 
 @dataclass
@@ -61,8 +64,10 @@ class FieldRule:
     is_anchor:     bool          = False
 
     # Override / metadata
-    replace_text:  Optional[str] = None   # hardcode this value
-    metadata_key:  Optional[str] = None   # pull from file/runtime metadata
+    replace_text:      Optional[str] = None   # hardcode this value
+    metadata_key:      Optional[str] = None   # pull from file/runtime metadata
+    # AFP-specific
+    format_conversion: Optional[int] = None   # Mobius format conversion code
 
 
 @dataclass
@@ -141,6 +146,8 @@ class PolicyParser:
             'PageBreaks':    'page_breaks',
             'LineBreaks':    'line_breaks',
             'PageViewMode':  'page_view_mode',
+            'Formdef':       'formdef',
+            'InputResPath':  'input_res_path',
         }
         for line in text.splitlines():
             line = line.strip().rstrip(';')
@@ -237,6 +244,11 @@ class PolicyParser:
         m = re.search(r"metadata\('([^']*)'\)", attrs)
         if m:
             rule.metadata_key = m.group(1)
+
+        # formatconversion(N)
+        m = re.search(r'formatconversion\((\d+)\)', attrs)
+        if m:
+            rule.format_conversion = int(m.group(1))
 
         return rule
 

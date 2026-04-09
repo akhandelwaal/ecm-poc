@@ -58,6 +58,10 @@ class FieldExtractor:
             Dict[field_name → value]  if the page matches the anchor.
             None                       if the anchor was not found.
         """
+        # AFP pages carry embedded TLE metadata — no anchor scan needed
+        if page.is_afp:
+            return self._extract_afp_page(page, file_path)
+
         # ── Step 1: locate the anchor line ───────────────────────────────────
         anchor_idx: Optional[int] = None
         if self._anchor:
@@ -87,6 +91,123 @@ class FieldExtractor:
                              page.page_number, name)
 
         return results
+
+    # ── AFP Page Extraction ───────────────────────────────────────────────────
+
+    def _extract_afp_page(self, page: Page, file_path: str) -> Dict[str, str]:
+        """
+        Extract fields from an AFP page using embedded TLE metadata.
+
+        All fields come from either:
+          • replacetext()        → hardcoded literal
+          • metadata('KEY')      → AFP TLE metadata first, then file-system metadata
+        Positional (rowcol) extraction is not applicable for AFP pages.
+        """
+        results: Dict[str, str] = {}
+        for name, rule in self.field_rules.items():
+            if rule.is_anchor:
+                continue   # AFP policies have no anchor field
+
+            value = self._extract_field_afp(rule, page, file_path)
+            if value is not None:
+                results[name] = value
+            elif rule.allow_blank:
+                results[name] = ''
+
+        return results
+
+    def _extract_field_afp(
+        self,
+        rule:      FieldRule,
+        page:      Page,
+        file_path: str,
+    ) -> Optional[str]:
+        """AFP extraction: replacetext → AFP TLE metadata → file-system metadata."""
+
+        # 1. Hardcoded value (replacetext takes priority over metadata key)
+        if rule.replace_text is not None:
+            return self._format(rule.replace_text, rule)
+
+        # 2. Metadata lookup
+        if rule.metadata_key:
+            raw = self._resolve_afp_metadata(rule, page, file_path)
+            return self._apply_format_conversion(self._format(raw, rule), rule)
+
+        return None
+
+    def _resolve_afp_metadata(
+        self,
+        rule:      FieldRule,
+        page:      Page,
+        file_path: str,
+    ) -> str:
+        """
+        Resolve a metadata key for an AFP page.
+
+        Lookup order:
+          1. AFP TLE metadata embedded in the page (e.g. 'Account Name').
+          2. Known file-system / runtime metadata keys (FILE_DATE, FILE_NAME …).
+        """
+        key = rule.metadata_key
+
+        # 1. AFP TLE metadata (case-insensitive fallback)
+        if page.afp_metadata:
+            if key in page.afp_metadata:
+                return page.afp_metadata[key]
+            # Try case-insensitive match
+            key_lower = key.lower()
+            for k, v in page.afp_metadata.items():
+                if k.lower() == key_lower:
+                    return v
+
+        # 2. File-system / runtime metadata
+        return self._resolve_metadata(rule, file_path)
+
+    def _apply_format_conversion(self, value: str, rule: FieldRule) -> str:
+        """
+        Apply Mobius formatconversion code if present.
+
+        formatconversion(23171) is the most common code seen with AFP date fields.
+        In Mobius it signals a date-format conversion; for the PoC we validate
+        and reformat dates that match the rule's date_format pattern.
+        """
+        if not rule.format_conversion or not value or not value.strip():
+            return value
+
+        if rule.data_type != 'date' or not rule.date_format:
+            return value
+
+        # Attempt to parse the raw value and reformat to date_format
+        return self._reformat_date(value.strip(), rule.date_format)
+
+    def _reformat_date(self, raw: str, target_fmt: str) -> str:
+        """
+        Try common input date formats and reformat to *target_fmt*.
+        Returns *raw* unchanged if no recognised format matches.
+        """
+        from datetime import datetime as _dt
+
+        input_candidates = [
+            ('%Y%m%d',   8),   # YYYYMMDD
+            ('%m%d%Y',   8),   # MMDDYYYY
+            ('%d%m%Y',   8),   # DDMMYYYY
+            ('%Y-%m-%d', 10),  # YYYY-MM-DD
+            ('%m/%d/%Y', 10),  # MM/DD/YYYY
+        ]
+        out_fmt = (target_fmt
+                   .replace('YYYY', '%Y')
+                   .replace('MM',   '%m')
+                   .replace('DD',   '%d'))
+
+        for in_fmt, expected_len in input_candidates:
+            if len(raw) != expected_len:
+                continue
+            try:
+                return _dt.strptime(raw, in_fmt).strftime(out_fmt)
+            except ValueError:
+                continue
+
+        return raw  # return as-is if no format matched
 
     # ── Anchor Detection ──────────────────────────────────────────────────────
 
@@ -212,11 +333,23 @@ class FieldExtractor:
         key      = rule.metadata_key
         abs_path = os.path.abspath(file_path)
 
+        parts    = abs_path.replace('\\', '/').split('/')
+        drive    = parts[0] if parts and ':' in parts[0] else ''
+        dir_parts = parts[1:-1]   # everything between drive and filename
+
         dispatch = {
             'FILE_NAME':     lambda: os.path.basename(abs_path),
-            'FILE_DIR1':     lambda: os.path.basename(os.path.dirname(abs_path)),
-            'FILE_DIR2':     lambda: os.path.basename(
-                                         os.path.dirname(os.path.dirname(abs_path))),
+            'FILE_DIR1':     lambda: dir_parts[-1] if dir_parts else '',
+            'FILE_DIR2':     lambda: dir_parts[-2] if len(dir_parts) >= 2 else '',
+            'FILE_DIR3':     lambda: dir_parts[-3] if len(dir_parts) >= 3 else '',
+            'FILE_PATH':     lambda: os.path.dirname(abs_path),
+            'FILE_DRIVE':    lambda: drive,
+            'FILE_SERVER':   lambda: '',          # not applicable outside network share
+            'FILE_SHARE':    lambda: '',          # not applicable outside network share
+            'FILE_TIME':     lambda: datetime.fromtimestamp(
+                                         os.path.getmtime(abs_path)
+                                     ).strftime('%H%M%S') if os.path.exists(abs_path) else '',
+            'FILE_TYPE':     lambda: os.path.splitext(abs_path)[1].lstrip('.').upper(),
             'FILE_DATE':     lambda: self._file_date(abs_path, rule),
             'CURRENT_DATE':  lambda: datetime.now().strftime('%Y%m%d'),
             'ESTATEMENTKEY': lambda: os.path.splitext(os.path.basename(abs_path))[0],
@@ -226,7 +359,9 @@ class FieldExtractor:
         if handler:
             return handler()
 
-        logger.warning("Unknown metadata key: '%s'", key)
+        # Unknown key — silently return empty (AFP policies have many custom keys
+        # resolved from TLE metadata; they never reach here for AFP pages)
+        logger.debug("System metadata key not found: '%s'", key)
         return ''
 
     def _file_date(self, file_path: str, rule: FieldRule) -> str:
